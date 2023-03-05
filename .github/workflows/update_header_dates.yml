@@ -6,7 +6,7 @@ on:
 
 jobs:
   update_dates:
-    runs-on: windows
+    runs-on: macos-latest    
     steps:
       # Checkout the OpenMS/OpenMS repository
       - name: Checkout OpenMS/OpenMS
