@@ -5,7 +5,10 @@ on:
 
 jobs:
   update-year-numbers:
-    runs-on: macos-latest
+  runs:
+  using: 'node16'
+  main: 'main.js'    
+  runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
