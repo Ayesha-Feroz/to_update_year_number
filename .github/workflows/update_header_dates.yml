@@ -1,31 +1,42 @@
-name: Update year numbers
+name: Update OpenMS dates
 
+# Trigger this action manually
 on:
   workflow_dispatch:
 
 jobs:
-  update-year-numbers:   
-  runs-on: macos-latest
+  update_dates:
+    runs-on: macos-latest
     steps:
-      - name: Checkout code
+      # Checkout the OpenMS/OpenMS repository
+      - name: Checkout OpenMS/OpenMS
         uses: actions/checkout@v2
+        with:
+          repository: OpenMS/OpenMS
 
-      - name: Run update_header_dates.sh
+      # Update year numbers in files
+      - name: Update year numbers
         run: |
-          cd tools
-          chmod +x update_header_dates.sh
-          ./update_header_dates.sh ../cmake/knime/COPYRIGHT ../License.txt ../LICENSE ../src
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git commit -a -m "Update year numbers"
-          git push
+          cd OpenMS
+          find . -type f ! -path "./.git/*" -exec grep -q "Freie Universitaet Berlin 2002-20" {} \; -exec sed -i '' -e 's/and Freie Universitaet Berlin 2002-2022/and Freie Universitaet Berlin 2002-2023/g' {} \;
 
+      # Check for changes
+      - name: Check for changed files
+        id: changed-files
+        run: |
+          cd OpenMS
+          if git diff --exit-code; then
+            echo "changes_exist=false" >> $GITHUB_ENV
+          else
+            echo "changes_exist=true" >> $GITHUB_ENV
+          fi
+
+      # Create pull request
       - name: Create pull request
+        if: env.changes_exist == 'true'
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Update year numbers"
-          branch: "update-year-numbers"
-          title: "Update year numbers"
-          body: "This pull request updates the year numbers in the files specified in the commit message."
-          labels: "automated"
+          commit-message: Update year numbers in files
+          title: Update year numbers in files
+          branch: update-year-numbers
+          base: main
