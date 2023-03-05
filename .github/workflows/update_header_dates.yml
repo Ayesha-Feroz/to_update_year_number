@@ -1,0 +1,32 @@
+name: Update year numbers
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-year-numbers:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run update_header_dates.sh
+        run: |
+          cd tools
+          chmod +x update_header_dates.sh
+          ./update_header_dates.sh ../cmake/knime/COPYRIGHT ../License.txt ../LICENSE ../src
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -a -m "Update year numbers"
+          git push
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update year numbers"
+          branch: "update-year-numbers"
+          title: "Update year numbers"
+          body: "This pull request updates the year numbers in the files specified in the commit message."
+          labels: "automated"
